@@ -103,7 +103,7 @@ section{
         transform: translateY();
     }
     50%{
-        transform: translateY(-2f.4rem);
+        transform: translateY(-2.4rem);
     }
     100%{
         transform: translateY();
