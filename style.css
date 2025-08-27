@@ -94,7 +94,7 @@ section{
 }
 
 .home_img  img{
-    width: 35vw;
+    width: 34vw;
     
 
 }
@@ -220,7 +220,7 @@ span{
     padding: 3rem 2rem 4rem;
     border-radius: 2rem;
     text-align: center;
-    border: 2rem solid var(--bg-color);
+    border: 1.5rem solid var(--bg-color);
     transition: .5s ease;
 
 }
@@ -288,11 +288,11 @@ span{
     transform: translateY(0);
 }
 .portfolio-layer h4{
-    font-size: 3rem;
+    font-size: 1.5rem;
 
 }
 .portfolio-layer p{
-    font: size 50rem;
+    font: size 60rem;
     margin: 3rem 0 1rem;
 }
 
@@ -387,6 +387,10 @@ span{
     section {
         padding: 10rem 3% 2rem;
     }
+
+    .services{
+        padding-bottom: 7rem;
+    }
     .footer{
         padding: 2rem 3%;
     }
@@ -421,9 +425,30 @@ span{
     font-size: 2rem;
     margin: 3rem 0;
   }
+
+  .home{
+    flex-direction: column;
+  }
+
+  .home-content h3 {
+    font-size: 2.6rem;
+  }
+
+  .home-content h1 {
+    font-size: 5rem;    
+    }
   
+    .home_img img {
+        width: 70vw;
+        margin-top: 4rem;
+    }
 
-
+    .about{
+        flex-direction: column-reverse;
+    }
+    .services h2{
+        margin-bottom: 3rem;
+    }
 }
 
 
