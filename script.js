@@ -7,11 +7,13 @@ const menuToggle = document.getElementById("menuToggle")
 const navMenu = document.getElementById("navMenu")
 const navLinks = document.querySelectorAll(".nav-link")
 
+// Toggle mobile menu
 menuToggle.addEventListener("click", () => {
   menuToggle.classList.toggle("active")
   navMenu.classList.toggle("active")
 })
 
+// Close mobile menu when clicking on a link
 navLinks.forEach((link) => {
   link.addEventListener("click", () => {
     menuToggle.classList.remove("active")
@@ -19,8 +21,13 @@ navLinks.forEach((link) => {
   })
 })
 
+// Change navbar background on scroll
 window.addEventListener("scroll", () => {
-  navbar.classList.toggle("scrolled", window.scrollY > 50)
+  if (window.scrollY > 50) {
+    navbar.classList.add("scrolled")
+  } else {
+    navbar.classList.remove("scrolled")
+  }
 })
 
 // ====================================
@@ -30,84 +37,108 @@ window.addEventListener("scroll", () => {
 const sections = document.querySelectorAll("section")
 
 function setActiveLink() {
-  let current = ""
+  let currentSection = ""
+
   sections.forEach((section) => {
-    if (window.scrollY >= section.offsetTop - 200) {
-      current = section.id
+    const sectionTop = section.offsetTop
+    const sectionHeight = section.clientHeight
+
+    if (window.scrollY >= sectionTop - 200) {
+      currentSection = section.getAttribute("id")
     }
   })
 
   navLinks.forEach((link) => {
-    link.classList.toggle(
-      "active",
-      link.getAttribute("href") === `#${current}`
-    )
+    link.classList.remove("active")
+    if (link.getAttribute("href") === `#${currentSection}`) {
+      link.classList.add("active")
+    }
   })
 }
 
 window.addEventListener("scroll", setActiveLink)
 
 // ====================================
-// Typing Animation
+// Typing Animation Effect
 // ====================================
 
 const typingText = document.getElementById("typingText")
 const words = ["Data Scientist", "AI & ML Engineer", "Problem Solver", "Tech Enthusiast"]
 let wordIndex = 0
 let charIndex = 0
-let deleting = false
+let isDeleting = false
+let typingSpeed = 150
 
 function typeEffect() {
-  const word = words[wordIndex]
+  const currentWord = words[wordIndex]
 
-  if (deleting) {
-    typingText.textContent = word.substring(0, charIndex--)
+  if (isDeleting) {
+    // Remove characters
+    typingText.textContent = currentWord.substring(0, charIndex - 1)
+    charIndex--
+    typingSpeed = 50
   } else {
-    typingText.textContent = word.substring(0, charIndex++)
+    // Add characters
+    typingText.textContent = currentWord.substring(0, charIndex + 1)
+    charIndex++
+    typingSpeed = 150
   }
 
-  if (!deleting && charIndex === word.length) {
-    deleting = true
-    setTimeout(typeEffect, 1500)
-    return
-  }
-
-  if (deleting && charIndex === 0) {
-    deleting = false
+  // Check if word is complete
+  if (!isDeleting && charIndex === currentWord.length) {
+    // Pause at end of word
+    typingSpeed = 2000
+    isDeleting = true
+  } else if (isDeleting && charIndex === 0) {
+    // Move to next word
+    isDeleting = false
     wordIndex = (wordIndex + 1) % words.length
+    typingSpeed = 500
   }
 
-  setTimeout(typeEffect, deleting ? 50 : 120)
+  setTimeout(typeEffect, typingSpeed)
 }
 
+// Start typing effect when page loads
 window.addEventListener("load", typeEffect)
 
 // ====================================
-// Scroll Reveal
+// Scroll Reveal Animation
 // ====================================
 
 function revealOnScroll() {
-  document.querySelectorAll(".scroll-reveal").forEach((el) => {
-    if (el.getBoundingClientRect().top < window.innerHeight - 150) {
-      el.classList.add("active")
+  const reveals = document.querySelectorAll(".scroll-reveal")
+
+  reveals.forEach((element) => {
+    const elementTop = element.getBoundingClientRect().top
+    const windowHeight = window.innerHeight
+    const revealPoint = 150
+
+    if (elementTop < windowHeight - revealPoint) {
+      element.classList.add("active")
     }
   })
 }
 
 window.addEventListener("scroll", revealOnScroll)
+
+// Initial check on page load
 window.addEventListener("load", revealOnScroll)
 
 // ====================================
-// Skill Bar Animation
+// Animate Skill Progress Bars
 // ====================================
 
 function animateSkillBars() {
-  document.querySelectorAll(".skill-progress").forEach((bar) => {
-    if (
-      bar.getBoundingClientRect().top < window.innerHeight - 100 &&
-      !bar.classList.contains("animated")
-    ) {
-      bar.style.width = bar.dataset.progress + "%"
+  const skillBars = document.querySelectorAll(".skill-progress")
+
+  skillBars.forEach((bar) => {
+    const progress = bar.getAttribute("data-progress")
+    const barTop = bar.getBoundingClientRect().top
+    const windowHeight = window.innerHeight
+
+    if (barTop < windowHeight - 100 && !bar.classList.contains("animated")) {
+      bar.style.width = progress + "%"
       bar.classList.add("animated")
     }
   })
@@ -117,7 +148,7 @@ window.addEventListener("scroll", animateSkillBars)
 window.addEventListener("load", animateSkillBars)
 
 // ====================================
-// Contact Form Validation + AJAX Submit
+// Contact Form Validation
 // ====================================
 
 const contactForm = document.getElementById("contactForm")
@@ -127,55 +158,78 @@ const subjectInput = document.getElementById("subject")
 const messageInput = document.getElementById("message")
 const successMessage = document.getElementById("successMessage")
 
+// Error message elements
 const nameError = document.getElementById("nameError")
 const emailError = document.getElementById("emailError")
 const subjectError = document.getElementById("subjectError")
 const messageError = document.getElementById("messageError")
 
-function showError(el, msg) {
-  el.textContent = msg
-  el.style.color = "#ff4444"
-}
-
-function clearError(el) {
-  el.textContent = ""
-}
-
+// Validation functions
 function validateName() {
-  if (nameInput.value.trim().length < 2) {
+  const nameValue = nameInput.value.trim()
+  if (nameValue === "") {
+    showError(nameError, "Name is required")
+    return false
+  } else if (nameValue.length < 2) {
     showError(nameError, "Name must be at least 2 characters")
     return false
+  } else {
+    clearError(nameError)
+    return true
   }
-  clearError(nameError)
-  return true
 }
 
 function validateEmail() {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!regex.test(emailInput.value.trim())) {
-    showError(emailError, "Enter a valid email")
+  const emailValue = emailInput.value.trim()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (emailValue === "") {
+    showError(emailError, "Email is required")
     return false
+  } else if (!emailRegex.test(emailValue)) {
+    showError(emailError, "Please enter a valid email")
+    return false
+  } else {
+    clearError(emailError)
+    return true
   }
-  clearError(emailError)
-  return true
 }
 
 function validateSubject() {
-  if (subjectInput.value.trim().length < 3) {
+  const subjectValue = subjectInput.value.trim()
+  if (subjectValue === "") {
+    showError(subjectError, "Subject is required")
+    return false
+  } else if (subjectValue.length < 3) {
     showError(subjectError, "Subject must be at least 3 characters")
     return false
+  } else {
+    clearError(subjectError)
+    return true
   }
-  clearError(subjectError)
-  return true
 }
 
 function validateMessage() {
-  if (messageInput.value.trim().length < 10) {
+  const messageValue = messageInput.value.trim()
+  if (messageValue === "") {
+    showError(messageError, "Message is required")
+    return false
+  } else if (messageValue.length < 10) {
     showError(messageError, "Message must be at least 10 characters")
     return false
+  } else {
+    clearError(messageError)
+    return true
   }
-  clearError(messageError)
-  return true
+}
+
+function showError(element, message) {
+  element.textContent = message
+  element.style.color = "#ff4444"
+}
+
+function clearError(element) {
+  element.textContent = ""
 }
 
 // Real-time validation
@@ -184,55 +238,86 @@ emailInput.addEventListener("blur", validateEmail)
 subjectInput.addEventListener("blur", validateSubject)
 messageInput.addEventListener("blur", validateMessage)
 
-// ✅ AJAX Submit (FIXED)
-contactForm.addEventListener("submit", async (e) => {
-  e.preventDefault()
+// Form submission
+const form = document.getElementById('form');
+const submitBtn = form.querySelector('button[type="submit"]');
 
-  if (
-    !validateName() ||
-    !validateEmail() ||
-    !validateSubject() ||
-    !validateMessage()
-  ) return
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const formData = new FormData(contactForm)
+    const formData = new FormData(form);
+    formData.append("access_key", "f613a571-3175-4317-9644-889bbfea7346");
 
-  try {
-    const res = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      body: formData,
-    })
+    const originalText = submitBtn.textContent;
 
-    const data = await res.json()
+    submitBtn.textContent = "Sending...";
+    submitBtn.disabled = true;
 
-    if (data.success) {
-      successMessage.classList.add("show")
-      contactForm.reset()
+    try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData
+        });
 
-      setTimeout(() => {
-        successMessage.classList.remove("show")
-      }, 5000)
-    } else {
-      alert("Form submission failed.")
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Success! Your message has been sent.");
+            form.reset();
+        } else {
+            alert("Error: " + data.message);
+        }
+
+    } catch (error) {
+        alert("Something went wrong. Please try again.");
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
-  } catch (err) {
-    alert("Network error. Try again later.")
-  }
-})
+});
 
 // ====================================
-// Smooth Scrolling
+// Smooth Scrolling for Navigation Links
 // ====================================
 
 navLinks.forEach((link) => {
   link.addEventListener("click", (e) => {
     e.preventDefault()
-    const target = document.querySelector(link.getAttribute("href"))
-    if (target) {
+
+    const targetId = link.getAttribute("href")
+    const targetSection = document.querySelector(targetId)
+
+    if (targetSection) {
+      const offsetTop = targetSection.offsetTop - 70
+
       window.scrollTo({
-        top: target.offsetTop - 70,
+        top: offsetTop,
         behavior: "smooth",
       })
     }
   })
+})
+
+// ====================================
+// Initialize on Page Load
+// ====================================
+
+window.addEventListener("load", () => {
+  // Trigger initial animations
+  revealOnScroll()
+  animateSkillBars()
+  setActiveLink()
+
+  // Add animation class to hero section
+  const heroElements = document.querySelectorAll(".fade-in")
+  heroElements.forEach((element) => {
+    element.style.opacity = "0"
+  })
+
+  // Start hero animations
+  setTimeout(() => {
+    heroElements.forEach((element) => {
+      element.style.opacity = "1"
+    })
+  }, 100)
 })
